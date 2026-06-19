@@ -1,0 +1,14 @@
+# Logs
+logs
+*.log
+
+# Dependency directories (Never push this, it's huge!)
+node_modules/
+
+# Environment variables (Crucial!)
+.env
+.env.local
+
+# Production build folders
+build/
+dist/
