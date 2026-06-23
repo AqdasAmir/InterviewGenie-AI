@@ -1,5 +1,6 @@
 const { GoogleGenAI } = require("@google/genai")
 const { z } = require("zod")
+const { generatePdfBuffer } = require("./pdf.service");
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY
@@ -52,4 +53,67 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 
 }
 
-module.exports = { generateInterviewReport }
+// Generating pdf 
+
+const resumeDataSchema = z.object({
+    name: z.string().describe("Candidate's full name"),
+    headline: z.string().describe("Professional headline tailored to the job, e.g. 'Full-Stack Developer (MERN)'"),
+    contact: z.object({
+        email: z.string(),
+        phone: z.string().optional(),
+        location: z.string().optional(),
+        linkedin: z.string().optional(),
+        github: z.string().optional(),
+    }),
+    summary: z.string().describe("2-3 sentence professional summary tailored to the job description, written like a human wrote it, not generic AI text"),
+    skills: z.array(z.string()).describe("Relevant technical and soft skills, ordered by relevance to the job description"),
+    experience: z.array(z.object({
+        company: z.string(),
+        role: z.string(),
+        duration: z.string().describe("e.g. 'Jun 2024 - Present'"),
+        bullets: z.array(z.string()).describe("Achievement-focused bullet points, quantified where possible")
+    })).describe("Work experience or internships. Use an empty array if the candidate has none."),
+    projects: z.array(z.object({
+        name: z.string(),
+        techStack: z.array(z.string()).optional(),
+        bullets: z.array(z.string()).describe("What was built and the impact/result, quantified where possible")
+    })).describe("Relevant personal/academic projects — especially important for candidates with limited work experience"),
+    education: z.array(z.object({
+        institution: z.string(),
+        degree: z.string(),
+        duration: z.string()
+    }))
+})
+
+
+async function generateResumePdf({ resume, selfDescription, jobDescription }) {
+
+    const prompt = `Generate ATS-friendly resume content for a candidate, tailored to the job description below.
+
+                        Resume: ${resume}
+                        Self Description: ${selfDescription}
+                        Job Description: ${jobDescription}
+
+                        Tailor the summary, skills order, and bullet points to this specific job description, highlighting the candidate's most relevant strengths and experience.
+                        Write it like a real human-written resume, not something that sounds AI-generated.
+                        Quantify achievements wherever possible. Keep content concise enough to fit 1-2 pages when laid out.
+                        If work experience is limited, lean more heavily on projects to demonstrate relevant skills.
+                    `
+
+    const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+            responseJsonSchema: z.toJSONSchema(resumeDataSchema),
+        }
+    })
+
+    const data = JSON.parse(response.text)
+
+
+    const pdfBuffer = await generatePdfBuffer(data)
+    return pdfBuffer
+}
+
+module.exports = { generateInterviewReport, generateResumePdf };
