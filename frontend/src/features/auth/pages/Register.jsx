@@ -1,6 +1,8 @@
 import React,{useState} from 'react'
 import { useNavigate, Link } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
+import Loader  from '../../components/Loader'
+
 
 const Register = () => {
 
@@ -18,7 +20,7 @@ const Register = () => {
     }
 
     if(loading){
-        return (<main><h1>Loading.......</h1></main>)
+        return (<Loader text="Creating account..." />)
     }
 
     return (

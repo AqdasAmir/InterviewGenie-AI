@@ -1,0 +1,40 @@
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* Semi-transparent background helps the text stand out against light backgrounds */
+  background: rgba(0, 0, 0, 0.4); 
+  backdrop-filter: blur(6px); /* This creates the glass/blur effect */
+  -webkit-backdrop-filter: blur(6px); /* Safari support */
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Ensures it sits on top of absolutely everything */
+
+  .spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top: 5px solid #ffffff; /* Spinner color  */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  p {
+    color: #ffffff;
+    margin-top: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
