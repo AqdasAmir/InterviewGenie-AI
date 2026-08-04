@@ -1,18 +1,54 @@
-// ── Variables ────────────────────────────────────────────────────────────────
-$bg-page:        #0d1117;
-$bg-card:        #161b22;
-$bg-panel:       #1c2230;
-$bg-input:       #1e2535;
-$border-color:   #2a3348;
-$text-primary:   #e6edf3;
-$text-muted:     #7d8590;
-$accent:         #ff2d78;
-$accent-alt:     #ff6b9d;
-$badge-required: #ff2d78;
-$badge-best:     #ff2d78;
-$info-bg:        #1b2a4a;
-$info-border:    #2d4a7a;
+@use "sass:color";
+
+// ── Theme CSS Variables ────────────────────────────────
+:root {
+    // Default Light Theme
+    --bg-page:        #f3f4f6;
+    --bg-card:        #ffffff;
+    --bg-panel:       #f9fafb;
+    --bg-input:       #ffffff;
+    --border-color:   #e5e7eb;
+    --text-primary:   #111827;
+    --text-muted:     #6b7280;
+    --info-bg:        #eff6ff;
+    --info-border:    #bfdbfe;
+    --info-text: #1e40af;
+}
+
+[data-theme='dark'] {
+    // Dark Theme Overrides
+    --bg-page:        #0d1117;
+    --bg-card:        #161b22;
+    --bg-panel:       #1c2230;
+    --bg-input:       #1e2535;
+    --border-color:   #2a3348;
+    --text-primary:   #e6edf3;
+    --text-muted:     #7d8590;
+    --info-bg:        #1b2a4a;
+    --info-border:    #2d4a7a;
+    --info-text: #8ab4f8;
+}
+
+// ──SCSS Variables ─────────────────────
+$bg-page:        var(--bg-page);
+$bg-card:        var(--bg-card);
+$bg-panel:       var(--bg-panel);
+$bg-input:       var(--bg-input);
+$border-color:   var(--border-color);
+$text-primary:   var(--text-primary);
+$text-muted:     var(--text-muted);
+$info-bg:        var(--info-bg);
+$info-border:    var(--info-border);
+
+// Persistent Colors (don't change with theme)
+$accent:         #4f46e5; 
+$accent-alt:     #6366f1; 
+$badge-required: #4f46e5; 
+$badge-best:     #4f46e5; 
 $font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$severity-high:  #ff4d4d;
+$severity-medium:#f5a623;
+$severity-low:   #3fb950;
 
 // ── Page Shell ───────────────────────────────────────────────────────────────
 .home-page {
@@ -84,9 +120,9 @@ $font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 
         &:hover {
             // Adds a subtle red tint for the logout action
-            background-color: rgba(#ff4d4d, 0.1); 
-            color: #ff4d4d;
-            border-color: rgba(#ff4d4d, 0.3);
+            background-color: rgba(#4f46e5, 0.1); 
+            color: #4f46e5;
+            border-color: rgba(#4f46e5, 0.3);
         }
         
         &:active {
@@ -351,7 +387,7 @@ $font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
     p {
         margin: 0;
         font-size: 0.8rem;
-        color: #8ab4f8;
+        color: var(--info-text);
         line-height: 1.5;
 
         strong {
@@ -366,8 +402,7 @@ $font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, $accent 0%, darken($accent, 10%) 100%);
-    color: #fff;
+    background: linear-gradient(135deg, $accent 0%, color.adjust($accent, $lightness: -10%) 100%);    color: #fff;
     font-size: 0.9rem;
     font-weight: 600;
     border: none;

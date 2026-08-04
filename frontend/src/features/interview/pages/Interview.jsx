@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../style/interview.scss";
 import { useInterview } from "../hooks/useInterview.js";
+import { useTheme } from '../context/theme.context.jsx'
 import { useNavigate, useParams } from "react-router";
 import Loader  from '../../components/Loader'
 
@@ -135,6 +136,8 @@ const Interview = () => {
 
   const { report, getReportById, loading, getResumePdf } = useInterview();
   const { interviewId } = useParams();
+  const { theme, toggleTheme } = useTheme();
+  
 
   useEffect(() => {
     if (interviewId) {
