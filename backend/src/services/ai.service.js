@@ -1,6 +1,7 @@
 const { GoogleGenAI } = require("@google/genai")
 const { z } = require("zod")
 const { generatePdfBuffer } = require("./pdf.service");
+const { tr } = require("zod/v4/locales");
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY
@@ -32,13 +33,19 @@ const interviewReportSchema = z.object({
 
 async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
 
+    if (!jobDescription) {
+        throw new Error("Missing required argument: jobDescription");
+    }
+    if (!resume && !selfDescription) {
+        throw new Error("At least one of resume or selfDescription must be provided");
+    }
 
     const prompt = `Generate an interview report for a candidate with the following details:
                         Resume: ${resume}
                         Self Description: ${selfDescription}
                         Job Description: ${jobDescription}
 `
-
+    try {
     const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: prompt,
@@ -47,8 +54,12 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
             responseJsonSchema: z.toJSONSchema(interviewReportSchema),
         }
     })
-    
+
     return JSON.parse(response.text)
+} catch (error) {
+        console.error("Error in generateInterviewReport AI call:", error);
+        throw new Error("Failed to generate interview report");
+    }
 
 
 }
@@ -88,6 +99,13 @@ const resumeDataSchema = z.object({
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 
+    if (!jobDescription) {
+        throw new Error("Missing required argument: jobDescription");
+    }
+    if (!resume && !selfDescription) {
+        throw new Error("At least one of resume or selfDescription must be provided");
+    }
+
     const prompt = `Generate ATS-friendly resume content for a candidate, tailored to the job description below.
 
                         Resume: ${resume}
@@ -100,6 +118,7 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
                         If work experience is limited, lean more heavily on projects to demonstrate relevant skills.
                     `
 
+    try{
     const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: prompt,
@@ -114,6 +133,10 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 
     const pdfBuffer = await generatePdfBuffer(data)
     return pdfBuffer
+} catch (error) {
+    console.error("Error in generateResumePdf AI call:", error);
+    throw new Error("Failed to generate resume PDF");
+}
 }
 
 module.exports = { generateInterviewReport, generateResumePdf };

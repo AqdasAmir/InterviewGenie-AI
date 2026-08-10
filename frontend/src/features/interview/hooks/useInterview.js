@@ -2,6 +2,7 @@ import { getAllInterviewReports, generateInterviewReport, getInterviewReportById
 import { useContext, useEffect } from "react"
 import { InterviewContext } from "../context/interview.context"
 import { useParams } from "react-router"
+import { toast } from "react-hot-toast"
 
 
 export const useInterview = () => {
@@ -16,18 +17,29 @@ export const useInterview = () => {
     const { loading, setLoading, report, setReport, reports, setReports } = context
 
     const generateReport = async ({ jobDescription, selfDescription, resumeFile }) => {
+        if (!jobDescription) {
+            toast.error("Job description is required.")
+            return;
+        }
+        if (!selfDescription && !resumeFile) {
+            toast.error("At least one of resume file or self-description must be provided.")
+            return;        }
+
         setLoading(true)
         let response = null
         try {
             response = await generateInterviewReport({ jobDescription, selfDescription, resumeFile })
             setReport(response.interviewReport)
+            toast.success("Interview plan generated successfully!")
         } catch (error) {
             console.log(error)
+            const errorMessage = error.response?.data?.message || "Failed to generate report."
+            toast.error(errorMessage)
         } finally {
             setLoading(false)
         }
 
-        return response.interviewReport
+        return response?.interviewReport
     }
 
     const getReportById = async (interviewId) => {
@@ -38,10 +50,11 @@ export const useInterview = () => {
             setReport(response.interviewReport)
         } catch (error) {
             console.log(error)
+            toast.error("Failed to load the interview report.")
         } finally {
             setLoading(false)
         }
-        return response.interviewReport
+        return response?.interviewReport
     }
 
     const getReports = async () => {
@@ -52,11 +65,12 @@ export const useInterview = () => {
             setReports(response.interviewReports)
         } catch (error) {
             console.log(error)
+            toast.error("Failed to load your interview plans.")
         } finally {
             setLoading(false)
         }
 
-        return response.interviewReports
+        return response?.interviewReports
     }
 
 
@@ -71,9 +85,11 @@ export const useInterview = () => {
             link.setAttribute("download", `resume_${interviewReportId}.pdf`)
             document.body.appendChild(link)
             link.click()
+            toast.success("PDF downloaded successfully!")
         }
         catch (error) {
             console.log(error)
+            toast.error("Failed to generate PDF.")
         } finally {
             setLoading(false)
         }

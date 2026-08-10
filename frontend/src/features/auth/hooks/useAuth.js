@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { AuthContext } from "../auth.context";
 import { login, register, logout, getMe } from "../services/auth.api";
-
+import { toast } from "react-hot-toast";
 
 
 export const useAuth = () => {
@@ -15,8 +15,10 @@ export const useAuth = () => {
         try {
             const data = await login({ email, password })
             setUser(data.user)
+            toast.success("Logged in successfully!")
         } catch (err) {
-
+            console.log(err)
+            toast.error("Login failed!")
         } finally {
             setLoading(false)
         }
@@ -27,8 +29,10 @@ export const useAuth = () => {
         try {
             const data = await register({ username, email, password })
             setUser(data.user)
+            toast.success("Registration successful!")
         } catch (err) {
-
+            console.log(err)
+            toast.error("Registration failed!")
         } finally {
             setLoading(false)
         }
@@ -39,8 +43,10 @@ export const useAuth = () => {
         try {
             const data = await logout()
             setUser(null)
+            toast.success("Logged out successfully!")
         } catch (err) {
-
+            console.log(err)
+            toast.error("Logout failed!")
         } finally {
             setLoading(false)
         }

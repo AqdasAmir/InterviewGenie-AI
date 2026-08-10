@@ -134,6 +134,8 @@ const Interview = () => {
   const [activeNav, setActiveNav] = useState("technical");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const [loaderText, setLoaderText] = useState("Loading your interview plan...");
+
   const { report, getReportById, loading, getResumePdf } = useInterview();
   const { interviewId } = useParams();
   const { theme, toggleTheme } = useTheme();
@@ -141,13 +143,14 @@ const Interview = () => {
 
   useEffect(() => {
     if (interviewId) {
+      setLoaderText("Loading your interview plan...");
       getReportById(interviewId);
     }
   }, [interviewId]);
 
   if (loading || !report) {
     return (
-      <Loader text="Loading your interview plan..." />
+      <Loader text={loaderText} />
     );
   }
 
@@ -222,6 +225,7 @@ const Interview = () => {
 
           <button
             onClick={() => {
+              setLoaderText("Generating your resume...");
               getResumePdf(interviewId);
             }}
             className="button primary-button"

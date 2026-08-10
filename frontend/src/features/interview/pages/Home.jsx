@@ -13,6 +13,8 @@ const Home = () => {
   const [selfDescription, setSelfDescription] = useState("");
   const [resumeFile, setResumeFile] = useState(null);
 
+  const [loaderText, setLoaderText] = useState("Loading your page... Wait a moment")
+
   const resumeInputRef = useRef();
   const navigate = useNavigate();
 
@@ -25,6 +27,7 @@ const Home = () => {
   const { theme, toggleTheme } = useTheme();
 
   const handleGenerateReport = async () => {
+    setLoaderText("Generating your interview plan...")
     const resumeFile = resumeInputRef.current.files[0];
     const data = await generateReport({
       jobDescription,
@@ -40,7 +43,7 @@ const Home = () => {
   };
 
   if (loading) {
-    return <Loader text="Generating your interview plan..." />;
+    return <Loader text={loaderText} />;
   }
 
   return (
