@@ -2,8 +2,7 @@
 
 // ── Theme CSS Variables ────────────────────────────────
 :root {
-    // Default Light Theme
-    --bg-page:        #f3f4f6;
+    --bg-page:        #e3eaf7;
     --bg-card:        #ffffff;
     --bg-panel:       #f9fafb;
     --bg-input:       #ffffff;
@@ -12,11 +11,10 @@
     --text-muted:     #6b7280;
     --info-bg:        #eff6ff;
     --info-border:    #bfdbfe;
-    --info-text: #1e40af;
+    --info-text:      #1e40af;
 }
 
 [data-theme='dark'] {
-    // Dark Theme Overrides
     --bg-page:        #0d1117;
     --bg-card:        #161b22;
     --bg-panel:       #1c2230;
@@ -26,10 +24,10 @@
     --text-muted:     #7d8590;
     --info-bg:        #1b2a4a;
     --info-border:    #2d4a7a;
-    --info-text: #8ab4f8;
+    --info-text:      #8ab4f8;
 }
 
-// ──SCSS Variables ─────────────────────
+// ── SCSS Variables ─────────────────────
 $bg-page:        var(--bg-page);
 $bg-card:        var(--bg-card);
 $bg-panel:       var(--bg-panel);
@@ -40,15 +38,10 @@ $text-muted:     var(--text-muted);
 $info-bg:        var(--info-bg);
 $info-border:    var(--info-border);
 
-// Persistent Colors (don't change with theme)
 $accent:         #4f46e5; 
-$accent-alt:     #6366f1; 
 $badge-required: #4f46e5; 
 $badge-best:     #4f46e5; 
 $font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-$severity-high:  #ff4d4d;
-$severity-medium:#f5a623;
-$severity-low:   #3fb950;
 
 // ── Page Shell ───────────────────────────────────────────────────────────────
 .home-page {
@@ -57,19 +50,17 @@ $severity-low:   #3fb950;
     background-color: $bg-page;
     color: $text-primary;
     font-family: $font-stack;
-
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     padding: 3rem 1.5rem;
     gap: 2rem;
 }
 
-// ── Navbar ───────────────────────────────────────────────────────────────────
+// ── Navbar & Header ─────────────────────────────────────────
 .navbar {
     width: 100%;
-    max-width: 900px;
+    max-width: 1300px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -119,7 +110,6 @@ $severity-low:   #3fb950;
         font-family: $font-stack;
 
         &:hover {
-            // Adds a subtle red tint for the logout action
             background-color: rgba(#4f46e5, 0.1); 
             color: #4f46e5;
             border-color: rgba(#4f46e5, 0.3);
@@ -131,17 +121,14 @@ $severity-low:   #3fb950;
     }
 }
 
-// ── Page Header ──────────────────────────────────────────────────────────────
 .page-header {
     text-align: center;
-
     h1 {
         font-size: 2.25rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
         color: $text-primary;
     }
-
     p {
         color: $text-muted;
         font-size: 0.95rem;
@@ -149,24 +136,56 @@ $severity-low:   #3fb950;
         margin: 0 auto;
         line-height: 1.6;
     }
-
     .highlight {
         color: $accent;
     }
 }
 
-// ── Main Card ─────────────────────────────────────────────────────────────────
-.interview-card {
+// ── Split Layout Container ────────────────────────────────────────────────────
+.split-layout {
     width: 100%;
-    max-width: 900px;
+    max-width: 1300px;
+    display: flex;
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+// ── Interview Plan Card (Now on Left) ─────────────────────────────────────────
+.interview-card {
+    flex: 2;
     background-color: $bg-card;
     border: 1px solid $border-color;
     border-radius: 1rem;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    &__header {
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
+        border-bottom: 1px solid $border-color;
+        
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            color: $accent;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: $text-muted;
+            text-align: center;
+            margin-top: 0.5rem;
+            line-height: 1.4;
+        }
+    }
 
     &__body {
         display: flex;
-        min-height: 520px;
+        flex: 1;
     }
 
     &__footer {
@@ -183,7 +202,92 @@ $severity-low:   #3fb950;
     }
 }
 
-// ── Panels ────────────────────────────────────────────────────────────────────
+// ── Mock Interview Card (Now on Right) ────────────────────────────────────────
+.mock-card {
+    flex: 1;
+    min-width: 320px;
+    max-width: 400px;
+    background-color: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    &__header {
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
+        border-bottom: 1px solid $border-color;
+        background: linear-gradient(to right, rgba($accent, 0.08), transparent); 
+        
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            color: $accent;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: $text-muted;
+            text-align: center;
+            margin-top: 0.5rem;
+            line-height: 1.4;
+        }
+    }
+
+    &__body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        flex: 1;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: $text-primary;
+        }
+
+        input, select {
+            width: 100%;
+            background-color: $bg-input;
+            border: 1px solid $border-color;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: $text-primary;
+            font-family: $font-stack;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s;
+
+            &:focus {
+                border-color: $accent;
+            }
+        }
+    }
+
+    &__footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid $border-color;
+        
+        .generate-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+}
+
+
+// ── Panels & Elements ────────────────────────────────────────
 .panel-divider {
     width: 1px;
     background-color: $border-color;
@@ -248,7 +352,6 @@ $severity-low:   #3fb950;
 
     &--left {
         position: relative;
-
         .char-counter {
             position: absolute;
             bottom: 2.25rem;
@@ -263,7 +366,6 @@ $severity-low:   #3fb950;
     }
 }
 
-// ── Badges ────────────────────────────────────────────────────────────────────
 .badge {
     font-size: 0.7rem;
     font-weight: 600;
@@ -277,7 +379,6 @@ $severity-low:   #3fb950;
         color: $badge-required;
         border: 1px solid rgba($badge-required, 0.3);
     }
-
     &--best {
         background-color: rgba($badge-best, 0.15);
         color: $badge-best;
@@ -285,7 +386,6 @@ $severity-low:   #3fb950;
     }
 }
 
-// ── Section Label ─────────────────────────────────────────────────────────────
 .section-label {
     display: flex;
     align-items: center;
@@ -296,7 +396,6 @@ $severity-low:   #3fb950;
     margin-bottom: 0.25rem;
 }
 
-// ── Dropzone ──────────────────────────────────────────────────────────────────
 .upload-section {
     display: flex;
     flex-direction: column;
@@ -340,7 +439,6 @@ $severity-low:   #3fb950;
     }
 }
 
-// ── OR Divider ────────────────────────────────────────────────────────────────
 .or-divider {
     display: flex;
     align-items: center;
@@ -348,27 +446,23 @@ $severity-low:   #3fb950;
     color: $text-muted;
     font-size: 0.75rem;
 
-    &::before,
-    &::after {
+    &::before, &::after {
         content: '';
         flex: 1;
         height: 1px;
         background-color: $border-color;
     }
-
     span {
         white-space: nowrap;
     }
 }
 
-// ── Self Description ──────────────────────────────────────────────────────────
 .self-description {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-// ── Info Box ──────────────────────────────────────────────────────────────────
 .info-box {
     display: flex;
     align-items: flex-start;
@@ -389,20 +483,17 @@ $severity-low:   #3fb950;
         font-size: 0.8rem;
         color: var(--info-text);
         line-height: 1.5;
-
-        strong {
-            color: $text-primary;
-        }
+        strong { color: $text-primary; }
     }
 }
 
-// ── Generate Button ───────────────────────────────────────────────────────────
 .generate-btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, $accent 0%, color.adjust($accent, $lightness: -10%) 100%);    color: #fff;
+    background: linear-gradient(135deg, $accent 0%, color.adjust($accent, $lightness: -10%) 100%);
+    color: #fff;
     font-size: 0.9rem;
     font-weight: 600;
     border: none;
@@ -411,49 +502,99 @@ $severity-low:   #3fb950;
     transition: opacity 0.2s, transform 0.1s;
     font-family: $font-stack;
 
-    &:hover {
-        opacity: 0.9;
-    }
-
-    &:active {
-        transform: scale(0.98);
-    }
+    &:hover { opacity: 0.9; }
+    &:active { transform: scale(0.98); }
 }
 
-.recent-reports{
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+// ── History Layout (Bottom Section) ───────────────────────────────────────────
+.history-layout {
     width: 100%;
-    max-width: 900px;
+    max-width: 1300px;
+    display: flex;
+    gap: 1.5rem;
+    align-items: stretch;
 
-    .reports-list{
+    .history-card {
+        flex: 1;
+        background-color: $bg-card;
+        border: 1px solid $border-color;
+        border-radius: 1rem;
+        padding: 1.5rem;
         display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 1rem;
 
-        .report-item{
-            background-color: $bg-card;
-            border: 1px solid $border-color;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            flex: 1;
+        &__header {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: $accent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid $border-color;
+        }
+
+        .history-list {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            cursor: pointer;
-            flex-shrink: 0;
+            gap: 0.75rem;
+            overflow-y: auto;
+            max-height: 350px;
+            padding-right: 0.5rem;
 
-            .match-score {
-                font-size: 0.8rem;
-                font-weight: 600;
-                color: $accent;
-                align-items: flex-start;
+            &::-webkit-scrollbar { width: 6px; }
+            &::-webkit-scrollbar-thumb {
+                background-color: $border-color;
+                border-radius: 4px;
             }
+
+            .history-item {
+                background-color: $bg-panel;
+                border: 1px solid $border-color;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                cursor: pointer;
+                transition: border-color 0.2s, background-color 0.2s;
+
+                &:hover {
+                    border-color: $accent;
+                    background-color: rgba($accent, 0.02);
+                }
+
+                h3 {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    margin-bottom: 0.25rem;
+                    color: $text-primary;
+                }
+
+                .meta {
+                    font-size: 0.75rem;
+                    color: $text-muted;
+                    margin-bottom: 0.5rem;
+                }
+
+                .score {
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    color: $accent;
+                    &--high { color: #3fb950; }
+                    &--mid { color: #f5a623; }
+                    &--low { color: #ff4d4d; }
+                }
+            }
+        }
+        
+        .empty-state {
+            color: $text-muted;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 2rem 0;
         }
     }
 }
-
 
 // ── Page Footer ───────────────────────────────────────────────────────────────
 .page-footer {
@@ -466,69 +607,63 @@ $severity-low:   #3fb950;
         text-decoration: none;
         transition: color 0.2s;
 
-        &:hover {
-            color: $text-primary;
-        }
+        &:hover { color: $text-primary; }
     }
 }
 
 
-// ── Responsive (Mobile) ───────────────────────────────────────────────────────
-@media (max-width: 568px) {
-    // 1. Adjust overall page padding and header size for smaller screens
-    .home-page {
-        padding: 1.5rem 1rem;
+// ── Responsive Design Architecture ──────────────────────────────────────────
+
+// Medium Screens (Tablets / Laptops up to 900px)
+@media (max-width: 900px) {
+    // Keep cards side-by-side but allow the mock card to shrink slightly
+    .mock-card {
+        min-width: 280px;
+        max-width: 320px;
     }
 
-    .page-header h1 {
-        font-size: 1.75rem;
-    }
-
-    // 2. Stack the Job Description and Profile panels vertically
+    // Stack the inner panels of the Interview Card to save horizontal space
     .interview-card__body {
         flex-direction: column;
-        min-height: auto;
     }
 
-    // 3. Convert the vertical divider into a horizontal line
+    // Convert vertical divider to horizontal line
     .panel-divider {
         width: 100%;
         height: 1px;
     }
 
-    // 4. Ensure the Job Description textarea has enough breathing room
-    .panel--left {
-        .panel__textarea {
-            min-height: 250px;
-        }
-        
-        // Adjust the character counter position so it doesn't overlap
-        .char-counter {
-            bottom: 2rem;
-            right: 2rem;
-        }
+    // Give textarea breathing room when stacked
+    .panel--left .panel__textarea {
+        min-height: 200px;
+    }
+}
+
+// Small Screens (Mobiles / Small Tablets below 768px)
+@media (max-width: 768px) {
+    // Stack the main layout columns completely
+    .split-layout, .history-layout {
+        flex-direction: column;
+    }
+    
+    // Force both cards to take exactly the same 100% width
+    .mock-card, .interview-card {
+        max-width: 100%;
+        width: 100%;
+        min-width: 100%;
     }
 
-    // 5. Stack the footer elements (text and generate button)
+    .home-page {
+        padding: 1.5rem 1rem;
+    }
+    
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+
     .interview-card__footer {
         flex-direction: column;
         gap: 1rem;
-        text-align: center;
         align-items: stretch;
-
-        .generate-btn {
-            justify-content: center;
-        }
-    }
-
-    // 6. Stack the Recent Interview Plans vertically
-    .recent-reports {
-        .reports-list {
-            flex-direction: column;
-        }
-
-        .report-item {
-            width: 100%;
-        }
     }
 }

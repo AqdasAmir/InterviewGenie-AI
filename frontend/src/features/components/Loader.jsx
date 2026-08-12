@@ -3,7 +3,12 @@ import React from 'react';
 const Loader = ({ text = "Loading..." }) => {
   return (
     <div className="loading-overlay">
-      <div className="spinner"></div>
+      <div className="ai-pulse">
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+      </div>
       <p>{text}</p>
     </div>
   );

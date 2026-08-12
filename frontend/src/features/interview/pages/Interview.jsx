@@ -133,6 +133,7 @@ const RoadMapDay = ({ day }) => (
 const Interview = () => {
   const [activeNav, setActiveNav] = useState("technical");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const [loaderText, setLoaderText] = useState("Loading your interview plan...");
 
@@ -166,6 +167,19 @@ const Interview = () => {
       <div className="interview-layout">
         {/* ── Left Nav ── */}
         <nav className="interview-nav">
+          <button
+            className="interview-nav__item"
+            onClick={() => navigate("/")}
+            style={{ marginBottom: "1rem" }}
+          >
+            <span className="interview-nav__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </span>
+            <span style={{ flex: 1, textAlign: "left" }}>Back to Home</span>
+          </button>
           <button
             className={`mobile-toggle-btn interview-nav__item ${isMenuOpen ? "interview-nav__item--active" : ""}`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}

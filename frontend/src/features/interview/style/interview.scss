@@ -90,10 +90,18 @@ $severity-low:   #3fb950;
     padding: 1.75rem 1rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 0.25rem;
 
-
+    .primary-button {
+        margin-top: auto; 
+    }
+    & > .interview-nav__item:first-child {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid $border-color;
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
 
     &__label {
         font-size: 0.7rem;
@@ -567,13 +575,17 @@ $severity-low:   #3fb950;
         
         // Adjust the download button so it fits nicely on the right
         .primary-button {
-            white-space: nowrap;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.8rem;
-            flex-shrink: 0;
+            margin-top: 0;
+        }
+        & > .interview-nav__item:first-child {
+            margin-bottom: 0;
+            padding: 0.5rem;
+            border-bottom: none;
+            width: auto;
             
-            svg {
-                margin-right: 0.4rem !important;
+            // Hide the "Back to Home" text span
+            span:nth-child(2) {
+                display: none; 
             }
         }
     }
@@ -631,8 +643,8 @@ $severity-low:   #3fb950;
 @media (max-width: 500px) {
     .interview-nav {
         position: relative; 
-        padding: 0.75rem 0.5rem; // Reduced horizontal padding slightly
-        gap: 0.5rem; // Added gap between the two buttons
+        padding: 0.75rem 0.5rem; 
+        gap: 0.5rem; 
     }
 
     // Show the hamburger icon
@@ -657,7 +669,7 @@ $severity-low:   #3fb950;
     }
 
     .interview-nav .primary-button {
-        flex-shrink: 0; // Prevents the download button from getting squished
+        flex-shrink: 0; 
         padding: 0.5rem 0.6rem;
         font-size: 0.75rem;
 

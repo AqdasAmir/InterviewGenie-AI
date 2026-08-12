@@ -7,11 +7,15 @@ import { useNavigate } from "react-router";
 import Loader from "../../components/Loader";
 
 const Home = () => {
-  const { loading, generateReport, reports } = useInterview();
+  const { loading, generateReport, reports, initMockSession, mockHistory } = useInterview();
   const { user, handleLogout } = useAuth();
   const [jobDescription, setJobDescription] = useState("");
   const [selfDescription, setSelfDescription] = useState("");
   const [resumeFile, setResumeFile] = useState(null);
+
+  const [mockJobRole, setMockJobRole] = useState("");
+  const [mockReportId, setMockReportId] = useState("");
+  const [totalQuestions, setTotalQuestions] = useState(5);
 
   const [loaderText, setLoaderText] = useState("Loading your page... Wait a moment")
 
@@ -36,6 +40,19 @@ const Home = () => {
     });
     navigate(`/interview/${data._id}`);
   };
+
+  const handleStartMockInterview = async () => {
+    setLoaderText("Preparing your mock interview environment...");
+    const data = await initMockSession({
+      jobRole: mockJobRole,
+      interviewReportId: mockReportId || null,
+      totalQuestions: parseInt(totalQuestions)
+    });
+
+    if (data && data._id) {
+        navigate(`/mock-interview/${data._id}`);
+    }
+  }
 
   const handleUserLogout = async (e) => {
     await handleLogout();
@@ -146,16 +163,31 @@ const Home = () => {
       {/* Page Header */}
       <header className="page-header">
         <h1>
-          Create Your Custom <span className="highlight">Interview Plan</span>
+          Your AI <span className="highlight">Interview Hub</span>
         </h1>
         <p>
-          Let our AI analyze the job requirements and your unique profile to
-          build a winning strategy.
+          Practice with realistic mock interviews or generate a personalized preparation plan based on your target role.
         </p>
       </header>
 
-      {/* Main Card */}
+      {/* Split Layout Container */}
+      <div className="split-layout">
+       
+      {/* Left Panel - Generate Interview Plan  */}
       <div className="interview-card">
+        <div className="interview-card__header">
+            <h2>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              Interview Strategy & Report
+            </h2>
+            <p>Upload your resume and the target job description to generate a detailed, AI-driven preparation guide tailored to your profile.</p>
+          </div>
         <div className="interview-card__body">
           {/* Left Panel - Job Description */}
           <div className="panel panel--left">
@@ -371,31 +403,127 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Recent Reports List */}
-      {reports.length > 0 && (
-        <section className="recent-reports">
-          <h2>My Recent Interview Plans</h2>
-          <ul className="reports-list">
-            {reports.map((report) => (
-              <li
-                key={report._id}
-                className="report-item"
-                onClick={() => navigate(`/interview/${report._id}`)}
-              >
-                <h3>{report.title || "Untitled Position"}</h3>
-                <p className="report-meta">
-                  Generated on {new Date(report.createdAt).toLocaleDateString()}
-                </p>
-                <p
-                  className={`match-score ${report.matchScore >= 80 ? "score--high" : report.matchScore >= 60 ? "score--mid" : "score--low"}`}
-                >
-                  Match Score: {report.matchScore}%
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      {/* Right Panel - Mock Interview Setup */}
+       <div className="mock-card">
+            <div className="mock-card__header">
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Mock Interview
+                </h2>
+                <p>Start an interactive Q&A session tailored to your role.</p>
+            </div>
+            <div className="mock-card__body">
+                <div className="form-group">
+                    <label>Target Job Role</label>
+                    <input 
+                        type="text" 
+                        placeholder="e.g. Full-Stack Developer" 
+                        value={mockJobRole}
+                        onChange={(e) => setMockJobRole(e.target.value)}
+                        disabled={mockReportId !== ""}
+                    />
+                </div>
+                
+                <div className="or-divider"><span>OR</span></div>
+                
+                <div className="form-group">
+                    <label>Select Past Report Base</label>
+                    <select 
+                        value={mockReportId} 
+                        onChange={(e) => {
+                            setMockReportId(e.target.value);
+                            if (e.target.value !== "") setMockJobRole("");
+                        }}
+                    >
+                        <option value="">-- Do not use a report --</option>
+                        {reports.map((r) => (
+                            <option key={r._id} value={r._id}>
+                                {r.title || "Untitled Position"}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="form-group">
+                    <label>Number of Questions</label>
+                    <select value={totalQuestions} onChange={(e) => setTotalQuestions(e.target.value)}>
+                        <option value="3">Quick Warmup (3 Questions)</option>
+                        <option value="5">Standard Interview (5 Questions)</option>
+                        <option value="10">Deep Dive (10 Questions)</option>
+                    </select>
+                </div>
+            </div>
+            <div className="mock-card__footer">
+                <button onClick={handleStartMockInterview} className="generate-btn">
+                    Start Mock Session
+                </button>
+            </div>
+        </div>
+    </div>  
+
+      <div className="history-layout">
+        
+        {/* Left: Recent Interview Plans */}
+        <div className="history-card">
+          <h2 className="history-card__header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Recent Interview Plans
+          </h2>
+          {reports && reports.length > 0 ? (
+            <ul className="history-list">
+              {reports.map((report) => (
+                <li key={report._id} className="history-item" onClick={() => navigate(`/interview/${report._id}`)}>
+                  <h3>{report.title || "Untitled Position"}</h3>
+                  <p className="meta">
+                    Generated on {new Date(report.createdAt).toLocaleDateString()}
+                  </p>
+                  <p className={`score ${report.matchScore >= 80 ? "score--high" : report.matchScore >= 60 ? "score--mid" : "score--low"}`}>
+                    Match Score: {report.matchScore}%
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="empty-state">No interview plans generated yet.</p>
+          )}
+        </div>
+
+         {/* Right: Recent Mock Sessions */}
+        <div className="history-card">
+          <h2 className="history-card__header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Recent Mock Sessions
+          </h2>
+          {mockHistory && mockHistory.length > 0 ? (
+            <ul className="history-list">
+              {mockHistory.map((mock) => (
+                <li key={mock._id} className="history-item" onClick={() => navigate(`/mock-interview/summary/${mock._id}`)}>
+                  <h3>{mock.jobRole}</h3>
+                  <p className="meta">
+                    Completed on {new Date(mock.createdAt).toLocaleDateString()}
+                  </p>
+                  <p className={`score ${mock.averageScore >= 8 ? "score--high" : mock.averageScore >= 6 ? "score--mid" : "score--low"}`}>
+                    Average Score: {mock.averageScore}/10
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="empty-state">No mock interviews completed yet.</p>
+          )}
+        </div>
+
+      </div>
 
       {/* Page Footer */}
       <footer className="page-footer">

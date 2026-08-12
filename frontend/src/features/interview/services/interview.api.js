@@ -91,3 +91,69 @@ export const generateResumePdf = async ({ interviewReportId }) => {
 }
 
 
+// MOCK INTERVIEW APIs
+
+
+/**
+ * @description Start a new mock interview session
+ */
+export const startMockInterview = async ({ jobRole, interviewReportId, totalQuestions }) => {
+    try {
+        const response = await api.post("/api/mock-interview/start", {
+            jobRole,
+            interviewReportId,
+            totalQuestions
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error starting mock interview API:", error);
+        throw error;
+    }
+}
+
+/**
+ * @description Submit an answer, receive evaluation, and get the next question
+ */
+export const submitMockAnswer = async ({ mockInterviewId, userAnswer }) => {
+    if (!mockInterviewId || !userAnswer) {
+        throw new Error("mockInterviewId and userAnswer are required.");
+    }
+    try {
+        const response = await api.post(`/api/mock-interview/${mockInterviewId}/answer`, {
+            userAnswer
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error submitting mock answer API:", error);
+        throw error;
+    }
+}
+
+/**
+ * @description Fetch a specific mock interview session details by ID
+ */
+export const getMockInterviewById = async (mockInterviewId) => {
+    if (!mockInterviewId) {
+        throw new Error("mockInterviewId is required.");
+    }
+    try {
+        const response = await api.get(`/api/mock-interview/${mockInterviewId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching mock interview by ID API:", error);
+        throw error;
+    }
+}
+
+/**
+ * @description Fetch all mock interviews for the logged-in user
+ */
+export const getAllMockInterviews = async () => {
+    try {
+        const response = await api.get("/api/mock-interview/");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching all mock interviews API:", error);
+        throw error;
+    }
+}

@@ -139,4 +139,81 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 }
 }
 
-module.exports = { generateInterviewReport, generateResumePdf };
+
+//MOCK INTERVIEW SCHEMAS & FUNCTIONS
+
+
+const initialQuestionSchema = z.object({
+    question: z.string().describe("The first interview question for the candidate"),
+});
+
+const evaluateAndNextSchema = z.object({
+    score: z.number().describe("Score between 1 and 10 based on accuracy, depth, and clarity"),
+    feedback: z.string().describe("Detailed constructive feedback on the answer, highlighting strong points and areas for improvement"),
+    idealAnswer: z.string().describe("A strong, exemplary answer to the question"),
+    nextQuestion: z.string().optional().describe("The next interview question. Leave empty if this was the last question."),
+    overallFeedback: z.string().optional().describe("Summary of candidate performance across the whole interview. Only provided on the last question."),
+});
+
+/**
+ * Generate the initial question for the mock interview
+ */
+async function generateInitialQuestion({ jobRole, reportData }) {
+    const prompt = `You are an expert interviewer conducting a technical mock interview.
+    Job Role: ${jobRole}
+    Candidate Context / Previous Report: ${reportData ? JSON.stringify(reportData) : "N/A"}
+
+    Generate a relevant opening technical or behavioral interview question to start the interview.`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-3-flash-preview",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseJsonSchema: z.toJSONSchema(initialQuestionSchema),
+            },
+        });
+
+        return JSON.parse(response.text);
+    } catch (error) {
+        console.error("Error in generateInitialQuestion AI call:", error);
+        throw new Error("Failed to generate initial question");
+    }
+}
+
+/**
+ * Evaluate the current answer and provide the next question or overall report
+ */
+async function evaluateAnswerAndGetNextQuestion({ jobRole, currentQuestion, userAnswer, qaHistory, isLastQuestion }) {
+    const prompt = `You are conducting a mock interview for the role of ${jobRole}.
+    
+    Previous Q&A History: ${JSON.stringify(qaHistory)}
+    Current Question: ${currentQuestion}
+    User's Answer: ${userAnswer}
+    Is Last Question: ${isLastQuestion}
+
+    Evaluate the user's answer thoroughly.
+    - Rate it out of 10.
+    - Provide constructive feedback and an ideal response model.
+    - If "Is Last Question" is false, ask the next relevant, progressing technical/behavioral question.
+    - If "Is Last Question" is true, provide an overall summary feedback of their performance across all questions and omit the next question.`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-3-flash-preview",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseJsonSchema: z.toJSONSchema(evaluateAndNextSchema),
+            },
+        });
+
+        return JSON.parse(response.text);
+    } catch (error) {
+        console.error("Error in evaluateAnswerAndGetNextQuestion AI call:", error);
+        throw new Error("Failed to evaluate answer and get next question");
+    }
+}
+
+module.exports = { generateInterviewReport, generateResumePdf, generateInitialQuestion, evaluateAnswerAndGetNextQuestion };
