@@ -2,10 +2,42 @@ const { GoogleGenAI } = require("@google/genai")
 const { z } = require("zod")
 const { generatePdfBuffer } = require("./pdf.service");
 const { tr } = require("zod/v4/locales");
+const Groq = require("groq-sdk");
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY
 })
+
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY
+});
+
+// GROQ FALLBACK HELPER FUNCTION
+async function generateWithGroqFallback(prompt, schema) {
+    const jsonSchema = JSON.stringify(z.toJSONSchema(schema));
+    
+    const completion = await groq.chat.completions.create({
+        messages: [
+            {
+                role: "system",
+                content: `You are an expert AI assistant designed to conduct technical interviews and analyze resumes. 
+You MUST respond strictly in valid JSON format matching the exact JSON Schema provided below. Do not include any markdown blocks (like \`\`\`json), explanations, or conversational text.
+
+JSON Schema:
+${jsonSchema}`
+            },
+            {
+                role: "user",
+                content: prompt
+            }
+        ],
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.7,
+        response_format: { type: "json_object" }
+    });
+
+    return JSON.parse(completion.choices[0].message.content);
+}
 
 const interviewReportSchema = z.object({
     matchScore: z.number().describe("A score between 0 and 100 indicating how well the candidate's profile matches the job describe"),
@@ -57,8 +89,13 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 
     return JSON.parse(response.text)
 } catch (error) {
-        console.error("Error in generateInterviewReport AI call:", error);
-        throw new Error("Failed to generate interview report");
+        console.warn("Gemini unavailable. Rerouting generateInterviewReport to Groq...", error.message);
+        try {
+            return await generateWithGroqFallback(prompt, interviewReportSchema);
+        } catch (fallbackError) {
+            console.error("Groq fallback also failed:", fallbackError);
+            throw new Error("Failed to generate interview report");
+        }
     }
 
 
@@ -129,14 +166,18 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
     })
 
     const data = JSON.parse(response.text)
-
-
     const pdfBuffer = await generatePdfBuffer(data)
     return pdfBuffer
 } catch (error) {
-    console.error("Error in generateResumePdf AI call:", error);
-    throw new Error("Failed to generate resume PDF");
-}
+        console.warn("Gemini unavailable. Rerouting generateResumePdf to Groq...", error.message);
+        try {
+            const data = await generateWithGroqFallback(prompt, resumeDataSchema);
+            return await generatePdfBuffer(data);
+        } catch (fallbackError) {
+            console.error("Groq fallback also failed:", fallbackError);
+            throw new Error("Failed to generate resume PDF");
+        }
+    }
 }
 
 
@@ -177,8 +218,13 @@ async function generateInitialQuestion({ jobRole, reportData }) {
 
         return JSON.parse(response.text);
     } catch (error) {
-        console.error("Error in generateInitialQuestion AI call:", error);
-        throw new Error("Failed to generate initial question");
+        console.warn("Gemini unavailable. Rerouting generateInitialQuestion to Groq...", error.message);
+        try {
+            return await generateWithGroqFallback(prompt, initialQuestionSchema);
+        } catch (fallbackError) {
+            console.error("Groq fallback also failed:", fallbackError);
+            throw new Error("Failed to generate initial question");
+        }
     }
 }
 
@@ -211,8 +257,13 @@ async function evaluateAnswerAndGetNextQuestion({ jobRole, currentQuestion, user
 
         return JSON.parse(response.text);
     } catch (error) {
-        console.error("Error in evaluateAnswerAndGetNextQuestion AI call:", error);
-        throw new Error("Failed to evaluate answer and get next question");
+        console.warn("Gemini unavailable. Rerouting evaluateAnswerAndGetNextQuestion to Groq...", error.message);
+        try {
+            return await generateWithGroqFallback(prompt, evaluateAndNextSchema);
+        } catch (fallbackError) {
+            console.error("Groq fallback also failed:", fallbackError);
+            throw new Error("Failed to evaluate answer and get next question");
+        }
     }
 }
 
