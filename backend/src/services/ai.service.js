@@ -14,29 +14,38 @@ const groq = new Groq({
 
 // GROQ FALLBACK HELPER FUNCTION
 async function generateWithGroqFallback(prompt, schema) {
-    const jsonSchema = JSON.stringify(z.toJSONSchema(schema));
+    const jsonSchema = z.toJSONSchema(schema);
     
     const completion = await groq.chat.completions.create({
         messages: [
             {
                 role: "system",
-                content: `You are an expert AI assistant designed to conduct technical interviews and analyze resumes. 
-You MUST respond strictly in valid JSON format matching the exact JSON Schema provided below. Do not include any markdown blocks (like \`\`\`json), explanations, or conversational text.
-
-JSON Schema:
-${jsonSchema}`
+                content: "You are an expert AI assistant designed to conduct technical interviews and analyze resumes. Evaluate the provided context and extract the required data accurately. You must strictly follow the required JSON schema."
             },
             {
                 role: "user",
                 content: prompt
             }
         ],
-        model: "llama-3.3-70b-versatile",
-        temperature: 0.7,
-        response_format: { type: "json_object" }
+        model: "openai/gpt-oss-120b", 
+        temperature: 0.4, 
+        max_tokens: 4000, 
+        
+        
+        response_format: {
+            type: "json_schema",
+            json_schema: {
+                name: "interview_report_schema",
+                strict: false, 
+                schema: jsonSchema
+            }
+        }
     });
 
-    return JSON.parse(completion.choices[0].message.content);
+    
+    const jsonString = completion.choices[0].message.content;
+    
+    return JSON.parse(jsonString);
 }
 
 const interviewReportSchema = z.object({
