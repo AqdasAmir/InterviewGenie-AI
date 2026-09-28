@@ -1,18 +1,18 @@
 const { Router } = require('express');
-const { registerUserController, loginUserController, logoutUserController, getMeController } = require('../controllers/auth.controller');
+const { registerUserController, loginUserController, logoutUserController, getMeController, verifyOtpController, resendOtpController } = require('../controllers/auth.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const authRouter = Router();
 
 /**
  * @route POST /api/auth/register
- * @desc Register a new user
+ * @desc Register a new user & dispatch OTP
  * @access Public
  */
 authRouter.post('/register', registerUserController);
 
 /**
  * @route POST /api/auth/login
- * @desc Login a user with email and password, returns a JWT token
+ * @desc Login a verified user with email and password, returns a JWT token
  * @access Public
  */
 authRouter.post('/login', loginUserController);
@@ -30,5 +30,19 @@ authRouter.get("/logout", logoutUserController)
  * @access private
  */
 authRouter.get("/get-me", authMiddleware.authUser, getMeController)
+
+/**
+ * @route POST /api/auth/verify-otp
+ * @desc Verify OTP & activate account
+ * @access Public
+ */
+authRouter.post('/verify-otp', verifyOtpController);
+
+/**
+ * @route POST /api/auth/resend-otp
+ * @desc Request a fresh OTP
+ * @access Public
+ */
+authRouter.post('/resend-otp', resendOtpController);
 
 module.exports = authRouter;

@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { AuthContext } from "../auth.context";
-import { login, register, logout, getMe } from "../services/auth.api";
+import { login, register, logout, getMe, verifyOtp, resendOtp } from "../services/auth.api";
 import { toast } from "react-hot-toast";
 
 
@@ -16,9 +16,11 @@ export const useAuth = () => {
             const data = await login({ email, password })
             setUser(data.user)
             toast.success("Logged in successfully!")
+            return data;
         } catch (err) {
-            console.log(err)
-            toast.error("Login failed!")
+            console.error(err)
+            toast.error("Login failed!");
+            throw err;
         } finally {
             setLoading(false)
         }
@@ -28,11 +30,12 @@ export const useAuth = () => {
         setLoading(true)
         try {
             const data = await register({ username, email, password })
-            setUser(data.user)
-            toast.success("Registration successful!")
+            toast.success(data.message || "OTP sent to your email!");
+            return data;
         } catch (err) {
-            console.log(err)
-            toast.error("Registration failed!")
+            console.error(err);
+            toast.error(err.message || "Registration failed!");
+            throw err;
         } finally {
             setLoading(false)
         }
@@ -41,7 +44,7 @@ export const useAuth = () => {
     const handleLogout = async () => {
         setLoading(true)
         try {
-            const data = await logout()
+            await logout()
             setUser(null)
             toast.success("Logged out successfully!")
         } catch (err) {
@@ -51,6 +54,34 @@ export const useAuth = () => {
             setLoading(false)
         }
     }
+
+    const handleVerifyOtp = async ({ email, otp }) => {
+        setLoading(true);
+        try {
+            const data = await verifyOtp({ email, otp });
+            setUser(data.user);
+            toast.success(data.message || "Email verified successfully!");
+            return data;
+        } catch (err) {
+            console.error(err);
+            toast.error(err.message || "Verification failed!");
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResendOtp = async ({ email }) => {
+        try {
+            const data = await resendOtp({ email });
+            toast.success(data.message || "A new OTP has been sent!");
+            return data;
+        } catch (err) {
+            console.error(err);
+            toast.error(err.message || "Failed to resend OTP");
+            throw err;
+        }
+    };
 
     useEffect(() => {
 
@@ -68,5 +99,5 @@ export const useAuth = () => {
 
     }, [])
 
-    return { user, loading, handleRegister, handleLogin, handleLogout }
+    return { user, loading, handleRegister, handleLogin, handleLogout, handleVerifyOtp, handleResendOtp }
 }

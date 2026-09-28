@@ -6,6 +6,7 @@ import Home from "./features/interview/pages/Home";
 import Interview from "./features/interview/pages/Interview";
 import MockSession from "./features/interview/pages/MockSession";
 import MockSummary from "./features/interview/pages/MockSummary";
+import VerifyOtp from "./features/auth/pages/VerifyOtp";
 
 export const router = createBrowserRouter([
     {
@@ -15,6 +16,10 @@ export const router = createBrowserRouter([
     {
         path: "/register",
         element: <Register />
+    },
+    {
+        path: "/verify-otp",
+        element: <VerifyOtp />
     },
     {
         path: "/",

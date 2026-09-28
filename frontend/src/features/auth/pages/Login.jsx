@@ -10,12 +10,21 @@ const Login = () => {
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [unverifiedEmail, setUnverifiedEmail] = useState(null);
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        await handleLogin({ email, password })
-        navigate('/')
-    }
+        e.preventDefault();
+        setUnverifiedEmail(null);
+        try {
+            await handleLogin({ email, password });
+            navigate('/');
+        } catch (err) {
+            // Check if error is due to unverified account
+            if (err?.isVerified === false) {
+                setUnverifiedEmail(err.email || email);
+            }
+        }
+    };
 
     if (loading) {
         return (<Loader text="Logging in..." />)
@@ -59,6 +68,36 @@ const Login = () => {
                 <div className="auth-card__form">
                     <h1>Welcome Back</h1>
                     <p className="sub-text">Log in to access your interview plans and history.</p>
+
+                    {unverifiedEmail && (
+                        <div style={{
+                            background: '#FEF2F2',
+                            border: '1px solid #FCA5A5',
+                            color: '#991B1B',
+                            padding: '12px',
+                            borderRadius: '6px',
+                            marginBottom: '1rem',
+                            fontSize: '0.875rem'
+                        }}>
+                            <p style={{ margin: '0 0 6px 0' }}>Your email is not verified yet.</p>
+                            <button
+                                type="button"
+                                onClick={() => navigate('/verify-otp', { state: { email: unverifiedEmail } })}
+                                style={{
+                                    background: '#DC2626',
+                                    color: '#fff',
+                                    border: 'none',
+                                    padding: '6px 12px',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                Verify Now
+                            </button>
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit}>
                         <div className="input-group">
