@@ -1,43 +1,76 @@
 require('dotenv').config();
-const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    type: 'OAuth2',
-    user: process.env.EMAIL_USER,
-    clientId: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    refreshToken: process.env.REFRESH_TOKEN,
-  },
+const oAuth2Client = new google.auth.OAuth2(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  'https://developers.google.com/oauthplayground' // Redirect URI configured in Google Cloud
+);
+
+oAuth2Client.setCredentials({
+  refresh_token: process.env.REFRESH_TOKEN,
 });
 
-// Verify the connection configuration
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('Error connecting to email server:', error);
-  } else {
-    console.log('Email server is ready to send messages');
-  }
-});
+// Create the Gmail API client
+const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+
+// Helper to construct a RFC 2822 MIME email string and encode it to base64url
+function createRawEmail({ to, from, subject, text, html }) {
+  const boundary = '____boundary____';
+  
+  const emailLines = [
+    `From: ${from}`,
+    `To: ${to}`,
+    `Subject: =?utf-8?B?${Buffer.from(subject).toString('base64')}?=`,
+    'MIME-Version: 1.0',
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    '',
+    `--${boundary}`,
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: 7bit',
+    '',
+    text || '',
+    '',
+    `--${boundary}`,
+    'Content-Type: text/html; charset=UTF-8',
+    'Content-Transfer-Encoding: 7bit',
+    '',
+    html || '',
+    '',
+    `--${boundary}--`,
+  ];
+
+  return Buffer.from(emailLines.join('\r\n'))
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
 
 
-// Function to send verification OTP email
 async function sendVerificationOtpEmail(to, subject, text, html) {
   try {
-    const info = await transporter.sendMail({
-      from: `"InterviewGennie-AI" <${process.env.EMAIL_USER}>`, // sender address
-      to, // list of receivers
-      subject, // Subject line
-      text, // plain text body
-      html, // html body
+    const raw = createRawEmail({
+      from: `"InterviewGennie-AI" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      text,
+      html,
     });
 
-    console.log('Message sent: %s', info.messageId);
-    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-  } catch (error) {
-    console.error('Error sending email:', error);
-  }
-};
+    const res = await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw,
+      },
+    });
 
-module.exports = {sendVerificationOtpEmail};
+    console.log('Email sent successfully via Gmail API. Message ID:', res.data.id);
+    return res.data;
+  } catch (error) {
+    console.error('Error sending email via Gmail API:', error?.response?.data || error.message);
+    throw error;
+  }
+}
+
+module.exports = { sendVerificationOtpEmail };
