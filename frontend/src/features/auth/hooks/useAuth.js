@@ -19,7 +19,7 @@ export const useAuth = () => {
             return data;
         } catch (err) {
             console.error(err)
-            toast.error("Login failed!");
+            toast.error(err.response?.data?.message || err.message || "Login failed!");
             throw err;
         } finally {
             setLoading(false)
@@ -34,7 +34,7 @@ export const useAuth = () => {
             return data;
         } catch (err) {
             console.error(err);
-            toast.error(err.message || "Registration failed!");
+            toast.error(err.response?.data?.message || err.message || "Registration failed!");
             throw err;
         } finally {
             setLoading(false)
